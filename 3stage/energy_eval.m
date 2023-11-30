@@ -1,0 +1,52 @@
+function [res,valid] = energy_eval(x,motor_vis)
+res = 0;
+valid = true;
+load('ele_para');
+load('motorfit');
+mf = motorfit;
+v = x(2:end)-x(1:end-1);
+v = [v;0];
+a = v(2:end)-v(1:end-1);
+a = [a;0];
+Ft = par.mas*a + 0.5 * par.ACd * par.rho * v.^2.*(v>1) + (par.Cr1+ par.Cr2*v).*(v>1)* par.mas * par.gav;
+T = Ft*par.wlr/par.Trans_eff/par.fdg;
+mot_spd = v ./ par.wlr * par.fdg;
+max_T = interp1(par.Mot_Sindx,par.Mot_maxtq,abs(mot_spd),'linear','extrap');
+for i = 1:length(T)
+    if T(i)>max_T(i)
+        T(i) = max(T);
+        %valid = false;
+        %return
+    elseif T(i)<-max_T(i)
+        T(i) = -max(T);
+        %valid = false;
+        %return
+    elseif mot_spd(i)>par.Mot_Sindx(end)
+        valid = false;
+        return
+    end
+end
+B = T;
+T(T<0) = 0;
+B(B>0) = 0;
+
+eff_T = interp2(par.Mot_Sindx, par.Mot_Tindx, par.Mot_map, mot_spd, min(T,-par.Mot_maxbr)); % 电机效率查表
+eff_B = interp2(par.Mot_Sindx, par.Mot_Tindx, par.Mot_map, mot_spd, min(-B,-par.Mot_maxbr)); % 电机效率查表
+if(sum(isnan(eff_T)>0))
+    disp('Contains NaN!!!')
+    valid = false;
+    return
+end
+% eff_T(isnan(eff_T)) = 0.0001;
+% eff_B(isnan(eff_B)) = 0.0001;
+Energy_cost = mot_spd.*T./eff_T./par.Discharge_eff;
+Brake_cost = mot_spd.*B.*eff_B .*par.Charge_eff;
+res = sum(Energy_cost+Brake_cost);
+
+%% 电机工作点
+if motor_vis
+    draw_motor(par,mot_spd,T)
+end
+
+end
+
