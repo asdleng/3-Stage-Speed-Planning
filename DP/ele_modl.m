@@ -23,7 +23,9 @@ inf_spd = v_last_square<=0;
 X{1} = (abs(v_last_square)).^0.5;    % current velocity, m/s
 X{2} = inp.X{2} + 2 / (X{1}+inp.X{1});                   % current time, s
 
-%inf_spd(X{1}<0)=1;    % 非法速度
+inf_spd(X{1}<=0)=1;    % 非法速度
+inf_spd(inp.X{1}<=0)=1;    % 非法速度
+inf_spd(isnan(X{1}))=1;    % 非法速度
 
 traf_t = 0;
 inf_traff = zeros(size(X{1}));
