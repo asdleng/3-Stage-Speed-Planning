@@ -1,4 +1,4 @@
-function [res,valid,pm] = energy_eval(x,motor_vis,color)
+function [res,valid,pm] = energy_eval(x,motor_vis)
 pm = [];
 res = 0;
 valid = true;
@@ -46,7 +46,7 @@ res = sum(Energy_cost+Brake_cost);
 
 %% 电机工作点
 if motor_vis
-    pm = draw_motor(par,mot_spd,T,3,color);
+    pm = draw_motor(par,mot_spd,T,3);
 end
 
 end

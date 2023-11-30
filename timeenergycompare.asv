@@ -1,0 +1,18 @@
+clc;clear;close all;
+threestageres = csvread("3stage\3stage_res.csv");
+threestagetime = csvread("3stage\3stage_time.csv");
+DPres = csvread("DP\DP_res.csv");
+DPtime = csvread("DP\DP_time.csv");
+
+threestageres = threestageres(:,2:end);
+threestagetime = threestagetime(:,2:end);
+DPres = DPres(:,2:end);
+DPtime = DPtime(:,2:end);
+
+threestageres = mean(threestageres,2);
+threestagetime = mean(threestagetime,2);
+DPtime = mean(DPtime,2);
+DPres = mean(DPres,2);
+
+threestagetime = log(threestagetime);
+DPtime = log(DPtime);
